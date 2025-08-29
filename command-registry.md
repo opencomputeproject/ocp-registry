@@ -22,48 +22,6 @@ New OCP specifications that require command codes **MUST**:
 3. Reference the defining specification
 4. Update this registry upon approval
 
-## Transport Binding Requirements
-
-Each transport protocol binding **MUST** define:
-
-1. How to frame OCP command requests and responses
-2. How to convey OCP success responses with full payload
-3. How to convey OCP error codes, using either the transport's native error mechanisms or as part of the response.
-
-### SPDM Transport Binding
-
-#### Command Framing
-- **Request**: Use SPDM VENDOR_DEFINED_REQUEST format
-- **Response**: Use either SPDM VENDOR_DEFINED_RESPONSE (success) or SPDM ERROR (failure)
-
-#### Standard Fields
-- StandardID field **MUST** contain 4 (IANA)
-- VendorID field **MUST** contain 42623 (OCP)
-
-#### Success Response Structure
-- Use SPDM VENDOR_DEFINED_RESPONSE format
-- First byte of VendorDefinedReqPayload/VendorDefinedRespPayload **MUST** contain the CommandVersion
-- Second byte of VendorDefinedReqPayload/VendorDefinedRespPayload **MUST** contain the CommandCode
-- OCP command request/response structures form the remainder of the payload
-
-#### Error Response Structure
-- Use SPDM ERROR message format
-- Use SPDM ERROR message format
-- Set Param1 to 0xFF ("Vendor or Standards-Defined") and Param2 to 0x4 ("IANA")
-- Use the ExtendedErrorData format for a vendor or other standards-defined ERROR response message
-- Within ExtendedErrorData, set Len to 4 and VendorID to 42623 (OCP)
-- Within OpaqueErrorData, set the first byte to the length of the error code. Shall be 1.
-- Within OpaqueErrorData, set the second byte to the OCP error code.
-
-### Future Transport Bindings
-
-Other transport protocols **MAY** define their own bindings provided they:
-
-- Maintain semantic equivalence of request and response structures
-- Preserve all required fields and their meanings
-- Implement appropriate error reporting using transport-native mechanisms
-- Document any transport-specific adaptations
-
 ## Cross-Specification References
 
 ### GET_ENVELOPE_SIGNED_CSR (0x01)
@@ -100,22 +58,22 @@ Other transport protocols **MAY** define their own bindings provided they:
 | 0x80-0xBF  | Reserved (Security)           | Reserved for security-specific error codes            |
 | 0xC0-0xFF  | Reserved (Project-Specific)   | Reserved for project-specific error codes             |
 
-## Error Code Categories
+### Error Code Categories
 
-### Generic Errors (0x00-0x7F)
+#### Generic Errors (0x00-0x7F)
 These error codes can be used across all OCP projects and are not specific to any particular domain. They cover common failure conditions that apply to any command-based protocol.
 
-### Security-Specific Errors (0x80-0xBF)
+#### Security-Specific Errors (0x80-0xBF)
 Reserved for security-specific error conditions such as:
 - Cryptographic operation failures
 - Certificate validation errors
 - Authentication/authorization failures
 - Security policy violations
 
-### Project-Specific Errors (0xC0-0xFF)
+#### Project-Specific Errors (0xC0-0xFF)
 Reserved for errors specific to particular OCP projects (e.g., networking, storage, compute).
 
-## Error Assignment Process
+### Error Assignment Process
 
 New OCP specifications that require error codes **MUST**:
 
@@ -125,31 +83,66 @@ New OCP specifications that require error codes **MUST**:
 4. Specify the intended category (Generic, Security, Project-Specific)
 5. Update this registry upon approval
 
-## Error Reporting Requirements
+### Error Handling Best Practices
 
-### Transport-Agnostic Error Handling
+#### For OCP Command Implementations
+- **MUST** use appropriate OCP error codes for all failure conditions
+- **SHOULD** use generic error codes when possible for broader compatibility
+- **SHOULD** provide meaningful error details when possible
 
-OCP error codes are defined independently of transport protocols. Each transport binding **MUST** specify how to convey OCP error codes using the transport's native error mechanisms.
+## Transport Bindings
 
-### SPDM Error Reporting
+### Transport Binding Requirements
 
-When using SPDM transport, OCP errors are reported as follows:
+Each transport protocol binding **MUST** define:
+
+1. How to frame OCP command requests and responses
+2. How to convey OCP success responses with full payload
+3. How to convey OCP error codes, using either the transport's native error mechanisms or as part of the response.
+
+### SPDM Transport Binding
+
+#### Command Framing
+- **Request**: Use SPDM VENDOR_DEFINED_REQUEST format
+- **Response**: Use either SPDM VENDOR_DEFINED_RESPONSE (success) or SPDM ERROR (failure)
+
+#### Standard Fields
+- StandardID field **MUST** contain 4 (IANA)
+- VendorID field **MUST** contain 42623 (OCP)
+
+#### Success Response Structure
+- Use SPDM VENDOR_DEFINED_RESPONSE format
+- First byte of VendorDefinedReqPayload/VendorDefinedRespPayload **MUST** contain the CommandVersion
+- Second byte of VendorDefinedReqPayload/VendorDefinedRespPayload **MUST** contain the CommandCode
+- OCP command request/response structures form the remainder of the payload
+
+#### Error Response Structure
+- Use SPDM ERROR message format
+- Set Param1 to 0xFF ("Vendor or Standards-Defined") and Param2 to 0x4 ("IANA")
+- Use the ExtendedErrorData format for a vendor or other standards-defined ERROR response message
+- Within ExtendedErrorData, set Len to 4 and VendorID to 42623 (OCP)
+- Within OpaqueErrorData, set the first byte to the length of the error code. Shall be 1.
+- Within OpaqueErrorData, set the second byte to the OCP error code.
 
 #### Protocol-Level Errors
 - Use standard SPDM ERROR message format
 - Set appropriate SPDM ErrorCode (e.g., VendorDefined, InvalidRequest)
 - Follow SPDM error response procedures
 
-### Other Transport Error Reporting
+### Future Transport Bindings
+
+Other transport protocols **MAY** define their own bindings provided they:
+
+- Maintain semantic equivalence of request and response structures
+- Preserve all required fields and their meanings
+- Implement appropriate error reporting using transport-native mechanisms
+- Document any transport-specific adaptations
 
 Future transport bindings **MAY** use different approaches such as:
 - **Native Error Fields**: Include OCP error code in response structure
 - **Status Responses**: Return either full response or error-only response
 - **Exception Mechanisms**: Use transport-native exception handling
 
-## Error Handling Best Practices
+### Transport-Agnostic Error Handling
 
-### For OCP Command Implementations
-- **MUST** use appropriate OCP error codes for all failure conditions
-- **SHOULD** use generic error codes when possible for broader compatibility
-- **SHOULD** provide meaningful error details when possible
+OCP error codes are defined independently of transport protocols. Each transport binding **MUST** specify how to convey OCP error codes using the transport's native error mechanisms.
