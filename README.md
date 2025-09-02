@@ -1,8 +1,8 @@
-# OCP OID Registry
+# OCP Registry
 
-This document contains an informative list of Object Identifiers defined by OCP specifications. This document serves as only a reference with short descriptions. The source of the normative references of the OID values and their definitions are in the OCP specifications themselves.
+This repository contains registries used by various OCP specifications.
 
-| Primary identifier  | Secondary identifier | Description                                                                                                |
-| :------------------ | :------------------- | :--------------------------------------------------------------------------------------------------------- |
-| 1.3.6.1.4.1.42623   | ocp                  | Root OCP OID under <{iso(1) identified-organization(3) dod(6) internet(1) private(4) enterprise(1) 42623}> |
-| 1.3.6.1.4.1.42623.1 | ocp-security         | OCP Security Project                                                                                       |
+| Registry                                | Description                                      |
+| :-------------------------------------- | :----------------------------------------------- |
+| [OID registry](oid-registry.md)         | Registry of OCP-defined OIDs                     |
+| [Command registry](command-registry.md) | Registry of OCP-defined commands and error codes |
